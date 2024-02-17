@@ -12,6 +12,7 @@ pragma solidity ^0.8.24;
     uint public updatedAt;
     uint public rewardRate;
     uint public rewardsPerTokenStored;
+    uint public totalSupply;
 
 
     mapping(address => uint) public userRewardPerTokenPaid;
@@ -23,7 +24,7 @@ pragma solidity ^0.8.24;
         _;
     }
 
-    uint public totalSupply;
+   
     mapping(address => uint) public balanceOf;
 
     modifier updateReward (address _staker) {
