@@ -6,16 +6,17 @@ pragma solidity ^0.8.24;
     IERC20 public immutable stakingToken;
     IERC20 public immutable rewardsToken;
 
-    address public owner;
-    
+    address public owner;    
     uint public duration;
     uint public finishAt; 
     uint public updatedAt;
     uint public rewardRate;
     uint public rewardsPerTokenStored;
 
+
     mapping(address => uint) public userRewardPerTokenPaid;
     mapping(address => uint) public rewards;
+
 
     modifier onlyOwner () {
         require(msg.sender == owner ,"not owner");
@@ -46,6 +47,9 @@ pragma solidity ^0.8.24;
         require(finishAt < block.timestamp, "reward duration not reached");
         duration = _duration;
     }
+
+
+    
     function notifyRewardAmount(uint _amount) external onlyOwner {
         if (block.timestamp > finishAt) {
             rewardRate = _amount / duration;
@@ -55,6 +59,7 @@ pragma solidity ^0.8.24;
         }
        
         require(rewardRate > 0, "reward rate is 0");
+
         require( rewardRate * duration <= rewardsToken.balanceOf(address(this)),
         "reward amount is greater than balance"
         );
@@ -62,22 +67,35 @@ pragma solidity ^0.8.24;
         finishAt = block.timestamp + duration;
         updatedAt = block.timestamp;
     }
+
+
     function stake(uint _amount) external updateReward(msg.sender) {
-        require(_amount > 0,"amount has to be greater than 0");        
+        require(_amount > 0,"amount has to be greater than 0");
+
         balanceOf[msg.sender] = balanceOf[msg.sender] + _amount;
+
         totalSupply = totalSupply + _amount;
+
         stakingToken.transferFrom(msg.sender, address(this), _amount);
     }
+
+
+
     function withdraw(uint _amount) external updateReward(msg.sender) {
-        require(_amount > 0, "amount is 0");        
+        require(_amount > 0, "amount is 0");    
+
         totalSupply = totalSupply - _amount;
+
+        balanceOf[msg.sender] = balanceOf[msg.sender] - _amount; 
+
         stakingToken.transfer(msg.sender, _amount); 
-        balanceOf[msg.sender] = balanceOf[msg.sender] - _amount;       
+             
     }
 
     function lastTimeRewardApplicable() public view returns (uint) {
         return _min(block.timestamp, finishAt);
     }
+
 
     function rewardPerToken() public view returns (uint) {
         if (totalSupply == 0) {
